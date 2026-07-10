@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from app.api.routers.health import health_router
 from app.api.routers.cars import cars_router
 from app.api.routers.licenses import licenses_router
 from app.api.routers.owners import owners_router
@@ -17,4 +18,6 @@ app.add_middleware(PaginationMiddleware)
 app.include_router(licenses_router)
 app.include_router(owners_router)
 app.include_router(cars_router)
+
+app.include_router(health_router)
 register_custom_exception_handlers(app)
