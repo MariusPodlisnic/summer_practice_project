@@ -1,7 +1,6 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-
 from sqlalchemy import (
     CheckConstraint,
     Date,
@@ -18,6 +17,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from app.utils.enums.car_category import CarCategory
 from app.utils.enums.driver_license_category import DriverLicenseCategory
+from app.utils.enums.policy_status import PolicyStatus
 
 
 class Base(DeclarativeBase):
@@ -136,4 +136,65 @@ class Car(Base):
     )
 
     owner: Mapped["Owner"] = relationship(back_populates="cars")
-    # TO DO: Add needed relationships
+
+    policies: Mapped[list["InsurancePolicy"]] = relationship(
+        back_populates="car",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+class InsurancePolicy(Base):
+    __tablename__ = "insurance_policies"
+    __table_args__ = (
+        CheckConstraint(
+            "end_date >= start_date",
+            name="ck_insurance_policies_date_order",
+        ).ddl_if(dialect="postgresql"),
+        CheckConstraint(
+            "start_date >= DATE '1900-01-01' AND start_date <= DATE '2100-12-31'",
+            name="ck_insurance_policies_start_date_range",
+        ).ddl_if(dialect="postgresql"),
+        CheckConstraint(
+            "end_date >= DATE '1900-01-01' AND end_date <= DATE '2100-12-31'",
+            name="ck_insurance_policies_end_date_range",
+        ).ddl_if(dialect="postgresql"),
+        CheckConstraint(
+            "paid_amount > 0 AND paid_amount <= 1000000",
+            name="ck_insurance_policies_paid_amount_range",
+        ).ddl_if(dialect="postgresql"),
+        CheckConstraint(
+            "provider IS NULL OR (length(provider) BETWEEN 1 AND 100 "
+            "AND provider ~ '^[A-Za-z0-9]+( [A-Za-z0-9]+)*$')",
+            name="ck_insurance_policies_provider_format",
+        ).ddl_if(dialect="postgresql"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+
+    car_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        ForeignKey("cars.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    provider: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    start_date: Mapped[date] = mapped_column(Date, nullable=False)
+    end_date: Mapped[date] = mapped_column(Date, nullable=False)
+    paid_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+
+    status: Mapped[PolicyStatus] = mapped_column(
+        SqlEnum(
+            PolicyStatus,
+            values_callable=lambda enum: [item.value for item in enum],
+            native_enum=False,
+            create_constraint=True,
+            length=8,
+        ),
+        nullable=False,
+        default=PolicyStatus.ACTIVE,
+    )
+
+    car: Mapped["Car"] = relationship(back_populates="policies")
