@@ -15,12 +15,12 @@ from app.services.owner_service import OwnerService
 def get_car_service(
      db:Session=Depends(get_db),
 ) -> CarService:
-    car_repository = SqlAlchemyOwnerRepository(db)
+    car_repository = SqlAlchemyCarRepository(db)
     return CarService(car_repository)
 
 
 def get_owner_service(
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db)
 ) -> OwnerService:
     owner_repository = SqlAlchemyOwnerRepository(db)
 
