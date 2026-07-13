@@ -64,6 +64,17 @@ def get_car_history(
 ):
     return car_service.get_car_history(car_id)
 
+@cars_router.delete(
+    "/{car_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete car",
+    description="Delete an existing car by id.",
+)
+def delete_car(
+    car_id: UUID,
+    car_service: CarService = Depends(get_car_service),
+):
+    car_service.delete_car(car_id)
 @cars_router.get(
     "/cars-categories",
     response_model=list[str],
