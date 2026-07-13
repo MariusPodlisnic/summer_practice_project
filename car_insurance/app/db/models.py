@@ -218,7 +218,7 @@ class Claim(Base):
             name="ck_claims_amount_range",
         ).ddl_if(dialect="postgresql"),
         CheckConstraint(
-            "length(description) BETWEEN 1 AND 1000",
+            "length(description) BETWEEN 1 AND 2000",
             name="ck_claims_description_length",
         ).ddl_if(dialect="postgresql"),
     )
