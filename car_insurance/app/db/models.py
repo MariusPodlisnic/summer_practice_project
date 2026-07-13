@@ -169,8 +169,8 @@ class InsurancePolicy(Base):
             name="ck_insurance_policies_paid_amount_range",
         ).ddl_if(dialect="postgresql"),
         CheckConstraint(
-            "provider IS NULL OR (length(provider) BETWEEN 1 AND 100 "
-            "AND provider ~ '^[A-Za-z0-9]+( [A-Za-z0-9]+)*$')",
+            "length(provider) BETWEEN 2 AND 150 "
+            "AND provider ~ '^[A-Za-z0-9]+( [A-Za-z0-9]+)*$'",
             name="ck_insurance_policies_provider_format",
         ).ddl_if(dialect="postgresql"),
     )
@@ -187,7 +187,7 @@ class InsurancePolicy(Base):
         nullable=False,
     )
 
-    provider: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    provider: Mapped[str] = mapped_column(String(150), nullable=False)
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
     paid_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
