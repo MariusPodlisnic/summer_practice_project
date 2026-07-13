@@ -47,12 +47,12 @@ CREATE TABLE IF NOT EXISTS cars (
     ),
     cc INTEGER NOT NULL CHECK (cc BETWEEN 1 AND 10000),
     power INTEGER NOT NULL CHECK (power BETWEEN 1 AND 500),
-    owner_id UUID NOT NULL REFERENCES owners(id)
+    owner_id UUID NOT NULL REFERENCES owners(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS insurance_policies (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    car_id UUID NOT NULL REFERENCES cars(id),
+    car_id UUID NOT NULL REFERENCES cars(id) ON DELETE CASCADE,
     provider VARCHAR(100) CHECK (
         provider IS NULL OR (
             LENGTH(provider) BETWEEN 1 AND 100
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS insurance_policies (
 
 CREATE TABLE IF NOT EXISTS claims (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    car_id UUID NOT NULL REFERENCES cars(id),
+    car_id UUID NOT NULL REFERENCES cars(id) ON DELETE CASCADE,
     claim_date DATE NOT NULL CHECK (
         claim_date >= DATE '1900-01-01'
         AND claim_date <= CURRENT_DATE
