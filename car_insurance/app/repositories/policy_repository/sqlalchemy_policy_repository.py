@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db.models import InsurancePolicy
-
+from app.utils.enums.policy_status import PolicyStatus
 
 class SqlAlchemyPolicyRepository:
     def __init__(self, db: Session):
@@ -31,3 +31,18 @@ class SqlAlchemyPolicyRepository:
         )
 
         return self.db.scalar(statement)
+
+    def has_valid_policy(
+            self,
+            car_id: UUID,
+            check_date: date,
+    ) -> bool:
+        statement = select(InsurancePolicy).where(
+            InsurancePolicy.car_id == car_id,
+            InsurancePolicy.status == PolicyStatus.ACTIVE,
+            InsurancePolicy.start_date <= check_date,
+            InsurancePolicy.end_date >= check_date,
+        )
+
+        return self.db.scalar(statement) is not None
+
