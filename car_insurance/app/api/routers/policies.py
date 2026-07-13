@@ -1,9 +1,9 @@
 from uuid import UUID
-
-from fastapi import APIRouter, Depends, status
+from datetime import date
+from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import get_policy_service
-from app.api.schemas.policy_schemas import PolicyCreate, PolicyResponse
+from app.api.schemas.policy_schemas import PolicyCreate, PolicyResponse , InsuranceValidityResponse
 from app.services.policy_service import PolicyService
 
 policies_router = APIRouter(tags=["Policies"])
@@ -24,4 +24,20 @@ def create_policy(
     return policy_service.create_policy(
         car_id=car_id,
         request=request,
+    )
+
+@policies_router.get(
+    "/api/cars/{car_id}/insurance-valid",
+    response_model=InsuranceValidityResponse,
+    summary="Check insurance validity",
+    description="Check if a car has valid insurance on a specific date.",
+)
+def check_insurance_validity(
+    car_id: UUID,
+    date: date = Query(...),
+    policy_service: PolicyService = Depends(get_policy_service),
+):
+    return policy_service.check_insurance_validity(
+        car_id=car_id,
+        check_date=date,
     )
