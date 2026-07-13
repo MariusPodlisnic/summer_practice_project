@@ -46,3 +46,17 @@ class SqlAlchemyPolicyRepository:
 
         return self.db.scalar(statement) is not None
 
+    def get_active_policy_by_car_id(
+            self,
+            car_id: UUID,
+    ) -> InsurancePolicy | None:
+        today = date.today()
+
+        statement = select(InsurancePolicy).where(
+            InsurancePolicy.car_id == car_id,
+            InsurancePolicy.status == PolicyStatus.ACTIVE,
+            InsurancePolicy.start_date <= today,
+            InsurancePolicy.end_date >= today,
+        )
+
+        return self.db.scalar(statement)
