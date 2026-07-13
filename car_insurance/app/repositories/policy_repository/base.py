@@ -20,3 +20,8 @@ class PolicyRepository(Protocol):
             car_id: UUID,
             check_date: date,
     ) -> bool: ...
+
+    def get_active_policy_by_car_id(
+            self,
+            car_id: UUID,
+    ) -> InsurancePolicy | None: ...

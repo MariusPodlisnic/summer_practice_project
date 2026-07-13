@@ -54,6 +54,28 @@ class PolicyService:
 
         return self.policy_repository.create_policy(policy)
 
+    def get_active_policy(
+            self,
+            car_id: UUID,
+    ) -> InsurancePolicy:
+        car = self.car_repository.get_car_by_id(car_id)
+
+        if car is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Car not found",
+            )
+
+        active_policy = self.policy_repository.get_active_policy_by_car_id(car_id)
+
+        if active_policy is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Active policy not found",
+            )
+
+        return active_policy
+    
     def check_insurance_validity(
             self,
             car_id: UUID,
