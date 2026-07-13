@@ -22,7 +22,7 @@ def get_cars(
     per_page: int = Query(10, ge=1, le=100),
     make: str | None = None,
     model: str | None = None,
-    category: CarCategory | None = None,
+    category: list[CarCategory] | None = Query(default=None),
     owner_id: UUID | None = None,
     car_service: CarService = Depends(get_car_service),
 ):

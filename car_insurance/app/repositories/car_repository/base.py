@@ -13,7 +13,7 @@ class CarRepository(Protocol):
         per_page: int,
         make: str | None = None,
         model: str | None = None,
-        category: CarCategory | None = None,
+        category: list[CarCategory] | None = None,
         owner_id: UUID | None = None,
     ) -> PaginatedResponse: ...
 
