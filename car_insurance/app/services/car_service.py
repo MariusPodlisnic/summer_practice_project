@@ -116,3 +116,17 @@ class CarService:
         )
 
         return self.repository.create_car(car)
+
+    def delete_car(
+            self,
+            car_id: UUID,
+    ) -> None:
+        car = self.repository.get_car_by_id(car_id)
+
+        if car is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Car not found",
+            )
+
+        self.repository.delete_car(car)
