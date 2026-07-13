@@ -64,6 +64,17 @@ def get_car_history(
 ):
     return car_service.get_car_history(car_id)
 
+@cars_router.get(
+    "/{car_id}",
+    response_model=CarWithOwnerResponse,
+    summary="Get car by id",
+    description="Return details about one car.",
+)
+def get_car_by_id(
+    car_id: UUID,
+    car_service: CarService = Depends(get_car_service),
+):
+    return car_service.get_car_by_id(car_id)
 @cars_router.delete(
     "/{car_id}",
     status_code=status.HTTP_204_NO_CONTENT,
