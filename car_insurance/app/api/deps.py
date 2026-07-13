@@ -24,7 +24,12 @@ def get_car_service(
     db: Session = Depends(get_db),
 ) -> CarService:
     car_repository = SqlAlchemyCarRepository(db)
-    return CarService(car_repository)
+    owner_repository = SqlAlchemyOwnerRepository(db)
+
+    return CarService(
+        repository=car_repository,
+        owner_repository=owner_repository,
+    )
 
 
 def get_owner_service(
