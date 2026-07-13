@@ -1,3 +1,4 @@
+from datetime import date
 from unittest.mock import Mock
 from uuid import UUID
 
@@ -146,3 +147,58 @@ def test_check_insurance_validity_car_not_found():
 
     assert exc.value.status_code == 404
     assert exc.value.detail == "Car not found"
+
+def test_check_insurance_validity_returns_true():
+    policy_repository = Mock()
+    car_repository = Mock()
+
+    car_id = UUID("33333333-3333-3333-3333-333333333333")
+
+    car_repository.get_car_by_id.return_value = Mock()
+    policy_repository.has_valid_policy.return_value = True
+
+    service = PolicyService(
+        policy_repository=policy_repository,
+        car_repository=car_repository,
+    )
+
+    result = service.check_insurance_validity(
+        car_id=car_id,
+        check_date=date(2031, 6, 1),
+    )
+
+    assert result.car_id == car_id
+    assert result.date == date(2031, 6, 1)
+    assert result.valid is True
+
+    car_repository.get_car_by_id.assert_called_once_with(car_id)
+    policy_repository.has_valid_policy.assert_called_once_with(
+        car_id=car_id,
+        check_date=date(2031, 6, 1),
+    )
+
+
+def test_check_insurance_validity_car_not_found():
+    policy_repository = Mock()
+    car_repository = Mock()
+
+    car_id = UUID("33333333-3333-3333-3333-333333333333")
+
+    car_repository.get_car_by_id.return_value = None
+
+    service = PolicyService(
+        policy_repository=policy_repository,
+        car_repository=car_repository,
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        service.check_insurance_validity(
+            car_id=car_id,
+            check_date=date(2031, 6, 1),
+        )
+
+    assert exc.value.status_code == 404
+    assert exc.value.detail == "Car not found"
+
+    car_repository.get_car_by_id.assert_called_once_with(car_id)
+    policy_repository.has_valid_policy.assert_not_called()
