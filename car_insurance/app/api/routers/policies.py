@@ -27,6 +27,17 @@ def create_policy(
     )
 
 @policies_router.get(
+    "/api/policies/active-policy",
+    response_model=PolicyResponse,
+    summary="Get active policy for car",
+    description="Return the currently active policy for a car.",
+)
+def get_active_policy(
+    car_id: UUID = Query(...),
+    policy_service: PolicyService = Depends(get_policy_service),
+):
+    return policy_service.get_active_policy(car_id)
+@policies_router.get(
     "/api/cars/{car_id}/insurance-valid",
     response_model=InsuranceValidityResponse,
     summary="Check insurance validity",
