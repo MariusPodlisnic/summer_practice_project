@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from app.api.deps import get_car_service
 from app.api.schemas.car_schemas import CarWithOwnerResponse
 from app.api.schemas.pagination_schemas import PaginatedResponse
+from app.api.schemas.car_history_schemas import CarHistoryResponse
 from app.services.car_service import CarService
 from app.utils.enums.car_category import CarCategory
 
@@ -35,6 +36,17 @@ def get_cars(
         owner_id=owner_id,
     )
 
+@cars_router.get(
+    "/{car_id}/history",
+    response_model=CarHistoryResponse,
+    summary="Get car history",
+    description="Return car details together with owner, policies and claims.",
+)
+def get_car_history(
+    car_id: UUID,
+    car_service: CarService = Depends(get_car_service),
+):
+    return car_service.get_car_history(car_id)
 
 @cars_router.get(
     "/cars-categories",
