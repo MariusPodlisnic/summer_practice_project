@@ -4,17 +4,24 @@ from fastapi import HTTPException, status
 from app.db.models import Car
 from app.api.schemas.pagination_schemas import PaginatedResponse
 from app.repositories.car_repository.base import CarRepository
+from app.repositories.owner_repository.base import OwnerRepository
 from app.utils.enums.car_category import CarCategory
 from app.api.schemas.car_history_schemas import (
     CarHistoryClaimResponse,
     CarHistoryPolicyResponse,
     CarHistoryResponse,
 )
+from app.api.schemas.car_schemas import CarCreate
 
 
 class CarService:
-    def __init__(self, repository: CarRepository):
+    def __init__(
+            self,
+            repository: CarRepository,
+            owner_repository: OwnerRepository,
+    ):
         self.repository = repository
+        self.owner_repository = owner_repository
 
     def get_categories(self) -> list[str]:
         return [category.value for category in CarCategory]
@@ -82,3 +89,30 @@ class CarService:
         )
 
         return history_items
+
+    def create_car(
+            self,
+            request: CarCreate,
+    ) -> Car:
+        owner = self.owner_repository.get_by_id(request.owner_id)
+
+        existing_car = self.repository.get_by_vin(request.vin)
+
+        if existing_car is not None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Car with this VIN already exists",
+            )
+
+        car = Car(
+            vin=request.vin,
+            make=request.make,
+            model=request.model,
+            year_of_manufacture=request.year_of_manufacture,
+            category=request.category,
+            cc=request.cc,
+            power=request.power,
+            owner_id=request.owner_id,
+        )
+
+        return self.repository.create_car(car)
