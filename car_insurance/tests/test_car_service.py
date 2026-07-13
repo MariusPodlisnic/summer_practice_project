@@ -97,3 +97,21 @@ def test_get_car_history_car_not_found():
 
     assert exc.value.status_code == 404
     assert exc.value.detail == "Car not found"
+
+def test_get_categories_returns_car_category_values():
+    car_repository = Mock()
+    owner_repository = Mock()
+
+    service = CarService(
+        repository=car_repository,
+        owner_repository=owner_repository,
+    )
+
+    result = service.get_categories()
+
+    assert "EURO3" in result
+    assert "EURO4" in result
+    assert "EURO5" in result
+    assert "EURO6" in result
+    assert "HYBRID" in result
+    assert "ELECTRIC" in result
