@@ -1,6 +1,7 @@
 from typing import Protocol
 from uuid import UUID
 
+from datetime import date
 from app.db.models import InsurancePolicy
 
 
@@ -13,3 +14,9 @@ class PolicyRepository(Protocol):
         start_date,
         end_date,
     ) -> InsurancePolicy | None: ...
+
+    def has_valid_policy(
+            self,
+            car_id: UUID,
+            check_date: date,
+    ) -> bool: ...

@@ -54,3 +54,8 @@ class PolicyResponse(BaseModel):
     end_date: date
     paid_amount: Decimal
     status: PolicyStatus
+
+class InsuranceValidityResponse(BaseModel):
+    car_id: UUID
+    date: date
+    valid: bool

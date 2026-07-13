@@ -1,8 +1,8 @@
 from uuid import UUID
-
+from datetime import date
 from fastapi import HTTPException, status
 
-from app.api.schemas.policy_schemas import PolicyCreate
+from app.api.schemas.policy_schemas import InsuranceValidityResponse, PolicyCreate
 from app.db.models import InsurancePolicy
 from app.repositories.car_repository.base import CarRepository
 from app.repositories.policy_repository.base import PolicyRepository
@@ -53,3 +53,27 @@ class PolicyService:
         )
 
         return self.policy_repository.create_policy(policy)
+
+    def check_insurance_validity(
+            self,
+            car_id: UUID,
+            check_date: date,
+    ) -> InsuranceValidityResponse:
+        car = self.car_repository.get_car_by_id(car_id)
+
+        if car is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Car not found",
+            )
+
+        is_valid = self.policy_repository.has_valid_policy(
+            car_id=car_id,
+            check_date=check_date,
+        )
+
+        return InsuranceValidityResponse(
+            car_id=car_id,
+            date=check_date,
+            valid=is_valid,
+        )
