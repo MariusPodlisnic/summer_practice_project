@@ -44,6 +44,7 @@ class SqlAlchemyCarRepository(PaginationRepositoryMixin, CarRepository):
             .options(joinedload(Car.owner))
             .where(Car.id == car_id)
         )
+        return self.db.scalar(statement)
 
     def get_car_history(self, car_id: UUID) -> Car | None:
         statement = (
