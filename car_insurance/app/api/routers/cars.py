@@ -40,7 +40,7 @@ def get_cars(
     "/{car_id}/history",
     response_model=CarHistoryResponse,
     summary="Get car history",
-    description="Return car details together with owner, policies and claims.",
+    description="Return car policy and claim history ordered chronologically.",
 )
 def get_car_history(
     car_id: UUID,

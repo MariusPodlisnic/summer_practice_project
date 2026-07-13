@@ -5,6 +5,11 @@ from app.db.models import Car
 from app.api.schemas.pagination_schemas import PaginatedResponse
 from app.repositories.car_repository.base import CarRepository
 from app.utils.enums.car_category import CarCategory
+from app.api.schemas.car_history_schemas import (
+    CarHistoryClaimResponse,
+    CarHistoryPolicyResponse,
+    CarHistoryResponse,
+)
 
 
 class CarService:
@@ -35,7 +40,7 @@ class CarService:
     def get_car_history(
             self,
             car_id: UUID,
-    ) -> Car:
+    ) -> CarHistoryResponse:
         car = self.repository.get_car_history(car_id)
 
         if car is None:
@@ -44,4 +49,36 @@ class CarService:
                 detail="Car not found",
             )
 
-        return car
+        history_items = []
+
+        for policy in car.policies:
+            history_items.append(
+                CarHistoryPolicyResponse(
+                    type="POLICY",
+                    policy_id=policy.id,
+                    start_date=policy.start_date,
+                    end_date=policy.end_date,
+                    provider=policy.provider,
+                    paid_amount=policy.paid_amount,
+                    status=policy.status,
+                )
+            )
+
+        for claim in car.claims:
+            history_items.append(
+                CarHistoryClaimResponse(
+                    type="CLAIM",
+                    claim_id=claim.id,
+                    claim_date=claim.claim_date,
+                    amount=claim.amount,
+                    description=claim.description,
+                )
+            )
+
+        history_items.sort(
+            key=lambda item: item.start_date
+            if isinstance(item, CarHistoryPolicyResponse)
+            else item.claim_date
+        )
+
+        return history_items
