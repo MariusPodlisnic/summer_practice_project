@@ -44,6 +44,20 @@ class CarService:
             owner_id=owner_id,
         )
 
+    def get_car_by_id(
+            self,
+            car_id: UUID,
+    ) -> Car:
+        car = self.repository.get_car_by_id(car_id)
+
+        if car is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Car not found",
+            )
+
+        return car
+    
     def get_car_history(
             self,
             car_id: UUID,
