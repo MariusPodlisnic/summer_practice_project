@@ -11,10 +11,13 @@ from app.repositories.owner_repository.sqlalchemy_owner_repository import (
 from app.repositories.policy_repository.sqlalchemy_policy_repository import (
     SqlAlchemyPolicyRepository,
 )
+from app.repositories.claim_repository.sqlalchemy_claim_repository import (
+    SqlAlchemyClaimRepository,
+)
 from app.services.policy_service import PolicyService
-
 from app.services.car_service import CarService
 from app.services.owner_service import OwnerService
+from app.services.claim_service import ClaimService
 
 
 def get_car_service(
@@ -38,5 +41,15 @@ def get_policy_service(
 
     return PolicyService(
         policy_repository=policy_repository,
+        car_repository=car_repository,
+    )
+def get_claim_service(
+    db: Session = Depends(get_db),
+) -> ClaimService:
+    claim_repository = SqlAlchemyClaimRepository(db)
+    car_repository = SqlAlchemyCarRepository(db)
+
+    return ClaimService(
+        claim_repository=claim_repository,
         car_repository=car_repository,
     )

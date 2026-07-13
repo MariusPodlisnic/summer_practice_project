@@ -142,6 +142,11 @@ class Car(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    claims: Mapped[list["Claim"]] = relationship(
+        back_populates="car",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 class InsurancePolicy(Base):
     __tablename__ = "insurance_policies"
     __table_args__ = (
@@ -198,3 +203,43 @@ class InsurancePolicy(Base):
     )
 
     car: Mapped["Car"] = relationship(back_populates="policies")
+
+class Claim(Base):
+    __tablename__ = "claims"
+    __table_args__ = (
+        CheckConstraint(
+            "claim_date >= DATE '1900-01-01' AND claim_date <= DATE '2100-12-31'",
+            name="ck_claims_claim_date_range",
+        ).ddl_if(dialect="postgresql"),
+        CheckConstraint(
+            "amount > 0 AND amount <= 1000000",
+            name="ck_claims_amount_range",
+        ).ddl_if(dialect="postgresql"),
+        CheckConstraint(
+            "length(description) BETWEEN 1 AND 1000",
+            name="ck_claims_description_length",
+        ).ddl_if(dialect="postgresql"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+
+    car_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        ForeignKey("cars.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    claim_date: Mapped[date] = mapped_column(Date, nullable=False)
+
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        nullable=False,
+    )
+
+    car: Mapped["Car"] = relationship(back_populates="claims")
