@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from sqlalchemy import or_, select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload , selectinload
 from sqlalchemy.sql import Select
 
 from app.api.schemas.pagination_schemas import PaginatedResponse
@@ -42,6 +42,17 @@ class SqlAlchemyCarRepository(PaginationRepositoryMixin, CarRepository):
         statement = (
             select(Car)
             .options(joinedload(Car.owner))
+            .where(Car.id == car_id)
+        )
+
+    def get_car_history(self, car_id: UUID) -> Car | None:
+        statement = (
+            select(Car)
+            .options(
+        joinedload(Car.owner),
+                selectinload(Car.policies),
+                selectinload(Car.claims),
+                )
             .where(Car.id == car_id)
         )
 
