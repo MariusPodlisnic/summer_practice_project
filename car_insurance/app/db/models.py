@@ -81,29 +81,31 @@ class Car(Base):
     __tablename__ = "cars"
     __table_args__ = (
         CheckConstraint(
-            "length(vin) BETWEEN 1 AND 16 AND vin ~ '^[A-Za-z0-9]+$'",
+            "length(vin) = 17 AND vin ~ '^[A-Za-z0-9]+$'",
             name="ck_cars_vin_format",
         ).ddl_if(dialect="postgresql"),
         CheckConstraint(
-            "make IS NULL OR (length(make) BETWEEN 1 AND 150 "
-            "AND make ~ '^[A-Za-z0-9]+( [A-Za-z0-9]+)*$')",
+            "length(make) BETWEEN 2 AND 150 "
+            "AND make ~ '^[A-Za-z0-9]+( [A-Za-z0-9]+)*$'",
             name="ck_cars_make_format",
         ).ddl_if(dialect="postgresql"),
         CheckConstraint(
-            "model IS NULL OR (length(model) BETWEEN 1 AND 150 "
-            "AND model ~ '^[A-Za-z0-9]+( [A-Za-z0-9]+)*$')",
+            "length(model) BETWEEN 2 AND 150 "
+            "AND model ~ '^[A-Za-z0-9]+( [A-Za-z0-9]+)*$'",
             name="ck_cars_model_format",
         ).ddl_if(dialect="postgresql"),
         CheckConstraint(
-            "year_of_manufacture BETWEEN 1900 AND EXTRACT(YEAR FROM CURRENT_DATE)",
+            "year_of_manufacture BETWEEN 1886 AND 2100",
             name="ck_cars_year_of_manufacture_range",
         ).ddl_if(dialect="postgresql"),
-        CheckConstraint("cc BETWEEN 1 AND 10000", name="ck_cars_cc_range").ddl_if(
-            dialect="postgresql"
-        ),
-        CheckConstraint("power BETWEEN 1 AND 500", name="ck_cars_power_range").ddl_if(
-            dialect="postgresql"
-        ),
+        CheckConstraint(
+            "cc > 0 AND cc < 10000",
+            name="ck_cars_cc_range",
+        ).ddl_if(dialect="postgresql"),
+        CheckConstraint(
+            "power > 0 AND power < 500",
+            name="ck_cars_power_range",
+        ).ddl_if(dialect="postgresql"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -167,8 +169,8 @@ class InsurancePolicy(Base):
             name="ck_insurance_policies_paid_amount_range",
         ).ddl_if(dialect="postgresql"),
         CheckConstraint(
-            "provider IS NULL OR (length(provider) BETWEEN 1 AND 100 "
-            "AND provider ~ '^[A-Za-z0-9]+( [A-Za-z0-9]+)*$')",
+            "length(provider) BETWEEN 2 AND 150 "
+            "AND provider ~ '^[A-Za-z0-9]+( [A-Za-z0-9]+)*$'",
             name="ck_insurance_policies_provider_format",
         ).ddl_if(dialect="postgresql"),
     )
@@ -185,7 +187,7 @@ class InsurancePolicy(Base):
         nullable=False,
     )
 
-    provider: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    provider: Mapped[str] = mapped_column(String(150), nullable=False)
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
     paid_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
@@ -216,7 +218,7 @@ class Claim(Base):
             name="ck_claims_amount_range",
         ).ddl_if(dialect="postgresql"),
         CheckConstraint(
-            "length(description) BETWEEN 1 AND 1000",
+            "length(description) BETWEEN 1 AND 2000",
             name="ck_claims_description_length",
         ).ddl_if(dialect="postgresql"),
     )

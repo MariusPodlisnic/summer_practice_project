@@ -8,22 +8,22 @@ from app.utils.enums.policy_status import PolicyStatus
 
 
 class PolicyCreate(BaseModel):
-    provider: str | None = Field(default=None, min_length=1, max_length=100)
+    provider: str | None = Field(min_length=2, max_length=150)
     start_date: date
     end_date: date
     paid_amount: Decimal = Field(gt=0, le=1_000_000)
 
     @field_validator("provider")
     @classmethod
-    def validate_provider(cls, value: str | None) -> str | None:
-        if value is None:
-            return value
-
+    def validate_provider(cls, value: str) -> str:
         cleaned_value = " ".join(value.strip().split())
+
+        if len(cleaned_value) <= 1 or len(cleaned_value) > 150:
+            raise ValueError("Provider length must be between 2 and 150 characters")
 
         if not cleaned_value.replace(" ", "").isalnum():
             raise ValueError(
-                "Provider must contain only letters and numbers separated by single spaces"
+                "Provider must contain only letters, numbers and single spaces between words"
             )
 
         return cleaned_value

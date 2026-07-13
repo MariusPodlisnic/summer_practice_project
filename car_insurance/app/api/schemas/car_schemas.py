@@ -27,19 +27,22 @@ class CarWithOwnerResponse(BaseModel):
     owner: CarOwnerResponse
 
 class CarCreate(BaseModel):
-    vin: str = Field(min_length=1, max_length=50)
-    make: str | None = Field(default=None, max_length=150)
-    model: str | None = Field(default=None, max_length=150)
+    vin: str = Field(min_length=17, max_length=17)
+    make: str = Field(min_length=2, max_length=150)
+    model: str = Field(min_length=2, max_length=150)
     year_of_manufacture: int = Field(ge=1886, le=2100)
-    category: CarCategory | None = None
-    cc: int = Field(gt=0, le=10000)
-    power: int = Field(gt=0, le=5000)
+    category: CarCategory
+    cc: int = Field(gt=0, lt=10000)
+    power: int = Field(gt=0, lt=500)
     owner_id: UUID
 
     @field_validator("vin")
     @classmethod
     def validate_vin(cls, value: str) -> str:
         cleaned_value = value.strip().upper()
+
+        if len(cleaned_value) != 17:
+            raise ValueError("VIN must have exactly 17 characters")
 
         if not cleaned_value.isalnum():
             raise ValueError("VIN must contain only letters and numbers")
@@ -48,14 +51,16 @@ class CarCreate(BaseModel):
 
     @field_validator("make", "model")
     @classmethod
-    def validate_optional_text(cls, value: str | None) -> str | None:
-        if value is None:
-            return value
-
+    def validate_make_model(cls, value: str) -> str:
         cleaned_value = " ".join(value.strip().split())
 
-        if not cleaned_value:
-            return None
+        if len(cleaned_value) <= 1 or len(cleaned_value) > 150:
+            raise ValueError("Value length must be between 2 and 150 characters")
+
+        if not cleaned_value.replace(" ", "").isalnum():
+            raise ValueError(
+                "Value must contain only letters, numbers and single spaces between words"
+            )
 
         return cleaned_value
 

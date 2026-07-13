@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class ClaimCreate(BaseModel):
     claim_date: date
-    description: str = Field(min_length=1, max_length=1000)
+    description: str = Field(min_length=1, max_length=2000)
     amount: Decimal = Field(gt=0, le=1_000_000)
 
     @field_validator("claim_date")
