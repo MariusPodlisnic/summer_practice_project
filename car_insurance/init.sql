@@ -23,8 +23,8 @@ CREATE INDEX IF NOT EXISTS ix_owners_email ON owners (email);
 
 CREATE TABLE IF NOT EXISTS cars (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    vin VARCHAR(16) UNIQUE NOT NULL CHECK (
-        LENGTH(vin) BETWEEN 1 AND 16
+    vin VARCHAR(17) UNIQUE NOT NULL CHECK (
+    LENGTH(vin) BETWEEN 1 AND 17
         AND vin ~ '^[A-Za-z0-9]+$'
     ),
     make VARCHAR(150) CHECK (
