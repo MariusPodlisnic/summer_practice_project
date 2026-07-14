@@ -65,6 +65,17 @@ def get_car_history(
     return car_service.get_car_history(car_id)
 
 @cars_router.get(
+    "/cars-categories",
+    response_model=list[str],
+    summary="Get car categories",
+    description="Returns available car categories.",
+)
+def get_car_categories(
+    car_service: CarService = Depends(get_car_service),
+):
+    return car_service.get_categories()
+
+@cars_router.get(
     "/{car_id}",
     response_model=CarWithOwnerResponse,
     summary="Get car by id",
@@ -86,13 +97,3 @@ def delete_car(
     car_service: CarService = Depends(get_car_service),
 ):
     car_service.delete_car(car_id)
-@cars_router.get(
-    "/cars-categories",
-    response_model=list[str],
-    summary="Get car categories",
-    description="Returns available car categories.",
-)
-def get_car_categories(
-    car_service: CarService = Depends(get_car_service),
-):
-    return car_service.get_categories()
